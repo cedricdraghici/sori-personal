@@ -1,0 +1,28 @@
+{
+  "name": "sori-translator-backend",
+  "version": "1.0.0",
+  "description": "Backend proxy for Sori translator extension",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "axios": "^1.6.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.1.5",
+    "helmet": "^7.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  },
+  "keywords": [
+    "translation",
+    "openai",
+    "proxy"
+  ],
+  "author": "",
+  "license": "MIT"
+}

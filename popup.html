@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sori Translator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <div class="popup-container">
+        <div class="header">
+            <div class="logo">
+                <img src="icons/logo1024.png" alt="Sori Logo" class="logo-icon">
+                <span class="logo-text">Sori</span>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+        
+        <div class="content">
+            <div class="language-section">
+                <div class="section-header">
+                    <span class="section-title">Translate to:</span>
+                </div>
+                <div class="language-selector">
+                    <select id="target-language" class="language-dropdown">
+                        <option value="en">English</option>
+                        <option value="es">Spanish</option>
+                        <option value="fr">French</option>
+                        <option value="de">German</option>
+                        <option value="zh">Simplified Chinese</option>
+                        <option value="zh-tw">Traditional Chinese</option>
+                        <option value="ja">Japanese</option>
+                        <option value="ko">Korean</option>
+                        <option value="pt">Portuguese</option>
+                        <option value="ar">Arabic</option>
+                        <option value="hi">Hindi</option>
+                        <option value="it">Italian</option>
+                        <option value="ru">Russian</option>
+                        <option value="ro">Romanian</option>
+                    </select>
+                </div>
+                <div class="current-language" id="current-language">
+                    Current: English
+                </div>
+            </div>
+
+            <div class="divider" id="language-divider"></div>
+
+            <div class="domain-section">
+                <div class="section-header">
+                    <span class="domain-name" id="current-domain">Loading...</span>
+                </div>
+                <div class="toggle-container">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="domain-toggle">
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span class="toggle-label">Enabled on this site</span>
+                </div>
+            </div>
+            
+            <div class="divider"></div>
+            
+            <div class="global-section">
+                <div class="toggle-container">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="global-toggle">
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span class="toggle-label">Enabled on all sites</span>
+                </div>
+            </div>
+            
+            <div class="divider"></div>
+            
+            <div class="modes-section">
+                <div class="section-header">
+                    <span class="section-title">Translation Mode:</span>
+                </div>
+                
+                <div class="translation-mode-section">
+                    <div class="toggle-container">
+                        <label class="toggle-switch">
+                            <input type="radio" name="translation-mode" id="translation-toggle" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="toggle-label">Translation Mode</span>
+                        <div class="info-icon" id="translation-info">ⓘ
+                            <div class="tooltip">Translates full phrases, sentences, or single words with contextual understanding</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="dictionary-section">
+                    <div class="toggle-container">
+                        <label class="toggle-switch">
+                            <input type="radio" name="translation-mode" id="dictionary-toggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="toggle-label">Monolingual Dictionary Mode</span>
+                        <div class="info-icon" id="dictionary-info">ⓘ
+                            <div class="tooltip">When enabled, this mode shows the definition of a single highlighted word in its original language</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bilingual-dictionary-section">
+                    <div class="toggle-container">
+                        <label class="toggle-switch">
+                            <input type="radio" name="translation-mode" id="bilingual-dictionary-toggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="toggle-label">Bilingual Dictionary Mode</span>
+                        <div class="info-icon" id="bilingual-dictionary-info">ⓘ
+                            <div class="tooltip">When enabled, this mode shows dictionary-style definitions translated from the source language to your target language</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="status" id="status-message"></div>
+        </div>
+    </div>
+    
+    <script src="popup.js"></script>
+</body>
+</html>

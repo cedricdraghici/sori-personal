@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "Sori Prototype: Click, highlight, and translate with ease",
+  "version": "1.0",
+  "description": "Highlight any text to see instant translations in your preferred language. Supports 14 languages with smart language detection.",
+  "icons": {
+    "16": "icons/logo16.png",
+    "32": "icons/logo32.png",
+    "48": "icons/logo48.png",
+    "128": "icons/logo128.png"
+  },
+  "permissions": ["scripting", "activeTab", "storage"],
+  "host_permissions": ["http://localhost:3000/*", "https://*.yourdomain.com/*"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Sori Translator Settings"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["config.js", "content.js"]
+    }
+  ]
+}

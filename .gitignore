@@ -1,0 +1,12 @@
+node_modules/
+.DS_Store
+
+# Backend environment files
+backend/.env
+backend/node_modules/
+backend/logs/
+backend/*.log
+
+# Extension package files
+*.crx
+*.pem
