@@ -12,6 +12,7 @@ const languageSection = document.querySelector('.language-section');
 const languageDivider = document.getElementById('language-divider');
 
 let currentDomain = '';
+let currentPageKey = '';
 
 // Language name mappings
 const languageNames = {
@@ -34,9 +35,16 @@ const languageNames = {
 // Initialize popup
 async function initializePopup() {
     try {
-        // Get current tab domain
+        // Get current tab URL
         const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-        currentDomain = new URL(tab.url).hostname;
+        const url = new URL(tab.url);
+
+        const hostname = url.hostname;
+        const pageKey = `${hostname}${url.pathname}`; // e.g. "n.news.naver.com/article/448/0000572493"
+
+        currentDomain = hostname;      // still use this for the domain toggle text
+        currentPageKey = pageKey;      // use this for per-page settings
+
         currentDomainElement.textContent = currentDomain;
 
         // Load current settings
@@ -49,7 +57,7 @@ async function initializePopup() {
         });
 
         const domainSettings = settings.domainSettings || {};
-        const domainConfig = domainSettings[currentDomain] || {
+        const domainConfig = domainSettings[currentPageKey] || {
             targetLanguage: settings.defaultTargetLanguage,
             translationMode: settings.defaultTranslationMode
         };
@@ -221,12 +229,12 @@ targetLanguageSelect.addEventListener('change', async function() {
 
         const domainSettings = settings.domainSettings || {};
 
-        const currentDomainConfig = domainSettings[currentDomain] || {
+        const currentDomainConfig = domainSettings[currentPageKey] || {
             targetLanguage: settings.defaultTargetLanguage || 'en',
             translationMode: settings.defaultTranslationMode || 'translation'
         };
 
-        domainSettings[currentDomain] = {
+        domainSettings[currentPageKey] = {
             ...currentDomainConfig,
             targetLanguage: selectedLanguage
         };
@@ -268,12 +276,12 @@ function handleModeChange(selectedMode) {
 
             const domainSettings = settings.domainSettings || {};
 
-            const currentDomainConfig = domainSettings[currentDomain] || {
+            const currentDomainConfig = domainSettings[currentPageKey] || {
                 targetLanguage: settings.defaultTargetLanguage || 'en',
                 translationMode: settings.defaultTranslationMode || 'translation'
             };
 
-            domainSettings[currentDomain] = {
+            domainSettings[currentPageKey] = {
                 ...currentDomainConfig,
                 translationMode: selectedMode
             };

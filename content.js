@@ -1,6 +1,9 @@
 // Global state for extension toggle
 let isExtensionEnabled = true;
-let currentDomain = window.location.hostname;
+let currentPageKey = (function () {
+    const url = new URL(window.location.href);
+    return `${url.hostname}${url.pathname}`;
+})();
 let targetLanguage = 'en'; // Default to English
 let currentTranslationMode = 'translation'; // Current mode: 'translation', 'dictionary', 'bilingual_dictionary'
 let pageLanguage = null; // Cached page language for dictionary lookups
@@ -284,12 +287,14 @@ async function initializeExtension() {
         });
 
         const domainSettings = settings.domainSettings || {};
-        const domainConfig = domainSettings[currentDomain] || {
+        const domainConfig = domainSettings[currentPageKey] || {
             targetLanguage: settings.defaultTargetLanguage,
             translationMode: settings.defaultTranslationMode
         };
 
-        isExtensionEnabled = settings.globalEnabled && !settings.disabledDomains.includes(currentDomain);
+        const hostname = window.location.hostname;
+
+        isExtensionEnabled = settings.globalEnabled && !settings.disabledDomains.includes(hostname);
         targetLanguage = domainConfig.targetLanguage || 'en';
         currentTranslationMode = domainConfig.translationMode || 'translation';
 
