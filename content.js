@@ -26,6 +26,19 @@ style.textContent = `
     user-select: text;
   }
 
+  .ai-translate-popup.error {
+    background: #d32f2f;
+    color: #fff;
+    padding: 12px 16px;
+    font-weight: 500;
+    max-width: 400px;
+  }
+
+  .ai-translate-popup.error::before {
+    content: "⚠️ ";
+    margin-right: 6px;
+  }
+
 `;
 document.head.appendChild(style);
 
@@ -378,26 +391,33 @@ document.addEventListener('mouseup', async function(e) {
             document.addEventListener('mousedown', removePopup);
             return;
         }
-        
+
         // Detect page language for dictionary lookup
         const pageLanguageCode = detectPageLanguage();
-        
+
         // Try to get the dictionary definition
         let definition;
+        let isError = false;
         try {
             definition = await fetchDictionary(selectedText, pageLanguageCode);
         } catch (err) {
-            definition = "Dictionary lookup error!";
+            if (err.message === 'BACKEND_CONNECTION_FAILED') {
+                definition = "Error: Could not establish connection. Backend server is not running.\n\nPlease start the backend with 'npm start' in the backend directory.";
+                isError = true;
+            } else {
+                definition = "Dictionary lookup error!";
+                isError = true;
+            }
         }
-        
+
         // Show the definition in a popup near the mouse
         const popup = document.createElement('div');
-        popup.className = 'ai-translate-popup';
+        popup.className = isError ? 'ai-translate-popup error' : 'ai-translate-popup';
         popup.textContent = definition;
         document.body.appendChild(popup);
         popup.style.left = (e.pageX + 10) + 'px';
         popup.style.top = (e.pageY + 10) + 'px';
-        
+
         // Remove popup on next click
         const removePopup = () => {
             popup.remove();
@@ -424,23 +444,30 @@ document.addEventListener('mouseup', async function(e) {
             document.addEventListener('mousedown', removePopup);
             return;
         }
-        
+
         // Try to get the bilingual dictionary definition
         let definition;
+        let isError = false;
         try {
             definition = await fetchBilingualDictionary(selectedText);
         } catch (err) {
-            definition = "Bilingual dictionary lookup error!";
+            if (err.message === 'BACKEND_CONNECTION_FAILED') {
+                definition = "Error: Could not establish connection. Backend server is not running.\n\nPlease start the backend with 'npm start' in the backend directory.";
+                isError = true;
+            } else {
+                definition = "Bilingual dictionary lookup error!";
+                isError = true;
+            }
         }
-        
+
         // Show the definition in a popup near the mouse
         const popup = document.createElement('div');
-        popup.className = 'ai-translate-popup';
+        popup.className = isError ? 'ai-translate-popup error' : 'ai-translate-popup';
         popup.textContent = definition;
         document.body.appendChild(popup);
         popup.style.left = (e.pageX + 10) + 'px';
         popup.style.top = (e.pageY + 10) + 'px';
-        
+
         // Remove popup on next click
         const removePopup = () => {
             popup.remove();
@@ -472,6 +499,7 @@ document.addEventListener('mouseup', async function(e) {
 
     // Check if it's a single word - if so, use contextual translation
     let translation;
+    let isError = false;
     try {
         if (wordCount === 1) {
             // Single word: extract context and use contextual translation
@@ -483,12 +511,18 @@ document.addEventListener('mouseup', async function(e) {
             translation = await fetchTranslation(selectedText);
         }
     } catch (err) {
-        translation = "Translation error!";
+        if (err.message === 'BACKEND_CONNECTION_FAILED') {
+            translation = "Error: Could not establish connection. Backend server is not running.\n\nPlease start the backend with 'npm start' in the backend directory.";
+            isError = true;
+        } else {
+            translation = "Translation error!";
+            isError = true;
+        }
     }
 
     // Show the translation in a popup near the mouse
     const popup = document.createElement('div');
-    popup.className = 'ai-translate-popup';
+    popup.className = isError ? 'ai-translate-popup error' : 'ai-translate-popup';
     popup.textContent = translation;
     document.body.appendChild(popup);
 
@@ -520,6 +554,9 @@ async function fetchTranslation(koreanText) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(requestBody)
+        }).catch(() => {
+            // Catch network errors immediately to prevent Chrome error console messages
+            throw new Error('BACKEND_CONNECTION_FAILED');
         });
 
         if (!response.ok) {
@@ -534,13 +571,13 @@ async function fetchTranslation(koreanText) {
         const data = await response.json();
         return data.translation;
     } catch (error) {
-        console.error('Translation error:', error);
-
-        // Return user-friendly error messages
-        if (error.message.includes('Failed to fetch')) {
-            throw new Error('Connection failed. Check if backend is running.');
+        // Suppress console errors to prevent Chrome extension error UI
+        if (error.message === 'BACKEND_CONNECTION_FAILED') {
+            throw new Error('BACKEND_CONNECTION_FAILED');
+        } else if (error.message.includes('Failed to fetch') || error.name === 'TypeError') {
+            throw new Error('BACKEND_CONNECTION_FAILED');
         } else {
-            throw new Error('Translation unavailable');
+            throw error;
         }
     }
 }
@@ -562,6 +599,9 @@ async function fetchContextualTranslation(word, context, contextType) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(requestBody)
+        }).catch(() => {
+            // Catch network errors immediately to prevent Chrome error console messages
+            throw new Error('BACKEND_CONNECTION_FAILED');
         });
 
         if (!response.ok) {
@@ -576,13 +616,13 @@ async function fetchContextualTranslation(word, context, contextType) {
         const data = await response.json();
         return data.translation;
     } catch (error) {
-        console.error('Contextual translation error:', error);
-
-        // Return user-friendly error messages
-        if (error.message.includes('Failed to fetch')) {
-            throw new Error('Connection failed. Check if backend is running.');
+        // Suppress console errors to prevent Chrome extension error UI
+        if (error.message === 'BACKEND_CONNECTION_FAILED') {
+            throw new Error('BACKEND_CONNECTION_FAILED');
+        } else if (error.message.includes('Failed to fetch') || error.name === 'TypeError') {
+            throw new Error('BACKEND_CONNECTION_FAILED');
         } else {
-            throw new Error('Contextual translation unavailable');
+            throw error;
         }
     }
 }
@@ -598,6 +638,9 @@ async function fetchDictionary(word, pageLanguageCode = 'en') {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(requestBody)
+        }).catch(() => {
+            // Catch network errors immediately to prevent Chrome error console messages
+            throw new Error('BACKEND_CONNECTION_FAILED');
         });
 
         if (!response.ok) {
@@ -612,13 +655,13 @@ async function fetchDictionary(word, pageLanguageCode = 'en') {
         const data = await response.json();
         return data.definition;
     } catch (error) {
-        console.error('Dictionary lookup error:', error);
-
-        // Return user-friendly error messages
-        if (error.message.includes('Failed to fetch')) {
-            throw new Error('Connection failed. Check if backend is running.');
+        // Suppress console errors to prevent Chrome extension error UI
+        if (error.message === 'BACKEND_CONNECTION_FAILED') {
+            throw new Error('BACKEND_CONNECTION_FAILED');
+        } else if (error.message.includes('Failed to fetch') || error.name === 'TypeError') {
+            throw new Error('BACKEND_CONNECTION_FAILED');
         } else {
-            throw new Error('Dictionary lookup unavailable');
+            throw error;
         }
     }
 }
@@ -634,6 +677,9 @@ async function fetchBilingualDictionary(word) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(requestBody)
+        }).catch(() => {
+            // Catch network errors immediately to prevent Chrome error console messages
+            throw new Error('BACKEND_CONNECTION_FAILED');
         });
 
         if (!response.ok) {
@@ -648,13 +694,13 @@ async function fetchBilingualDictionary(word) {
         const data = await response.json();
         return data.definition;
     } catch (error) {
-        console.error('Bilingual dictionary lookup error:', error);
-
-        // Return user-friendly error messages
-        if (error.message.includes('Failed to fetch')) {
-            throw new Error('Connection failed. Check if backend is running.');
+        // Suppress console errors to prevent Chrome extension error UI
+        if (error.message === 'BACKEND_CONNECTION_FAILED') {
+            throw new Error('BACKEND_CONNECTION_FAILED');
+        } else if (error.message.includes('Failed to fetch') || error.name === 'TypeError') {
+            throw new Error('BACKEND_CONNECTION_FAILED');
         } else {
-            throw new Error('Bilingual dictionary lookup unavailable');
+            throw error;
         }
     }
 }
