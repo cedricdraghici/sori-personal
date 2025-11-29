@@ -547,7 +547,8 @@ const BACKEND_CONFIG = {
 async function fetchTranslation(koreanText) {
     try {
         const requestBody = { text: koreanText, targetLanguage: targetLanguage };
-
+        
+        const start = performance.now();
         const response = await fetch(`${BACKEND_CONFIG.baseUrl}/api/translate`, {
             method: 'POST',
             headers: {
@@ -567,6 +568,15 @@ async function fetchTranslation(koreanText) {
                 throw new Error(`Translation failed: ${response.status}`);
             }
         }
+        const end = performance.now();
+        const rawLatency = end - start;
+
+        const wordCount = koreanText.trim().split(/\s+/).length;
+        const normalizedLatency = rawLatency / wordCount;
+
+        console.log(`RAW LATENCY: ${rawLatency.toFixed(1)} ms`);
+        console.log(`WORD COUNT: ${wordCount}`);
+        console.log(`NORMALIZED LATENCY: ${normalizedLatency.toFixed(1)} ms/word`);
 
         const data = await response.json();
         return data.translation;
